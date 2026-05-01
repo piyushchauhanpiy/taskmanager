@@ -1,17 +1,23 @@
-# Use single-stage build for simplicity
-FROM maven:3.8.4-openjdk-11
+# Build stage
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
-# Set working directory
 WORKDIR /app
 
-# Copy everything
-COPY . .
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
-# Build the application
+COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Expose port
+# Runtime stage
+FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+COPY --from=build /app/target/taskmanager-*.jar app.jar
+
+# Use dynamic port (IMPORTANT for Render)
+ENV PORT=8080
 EXPOSE 8080
 
-# Run the application
-CMD ["java", "-jar", "target/taskmanager-*.jar"]
+CMD ["java", "-jar", "app.jar"]
