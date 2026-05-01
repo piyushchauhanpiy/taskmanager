@@ -1,5 +1,5 @@
 # Use official Maven image as parent
-FROM maven:3.8.6-openjdk-11 AS build
+FROM maven:3.9-eclipse-temurin-21 AS build
 
 # Set working directory
 WORKDIR /app
@@ -15,7 +15,7 @@ COPY taskmanager/src ./src
 RUN mvn clean package -DskipTests
 
 # Use official OpenJDK image for runtime
-FROM openjdk:11-jre-slim
+FROM eclipse-temurin:21-jre
 
 # Set working directory
 WORKDIR /app
